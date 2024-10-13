@@ -1,2 +1,72 @@
-line1
-line2
+To Save snapshot of cluster state 
+
+ETCDCTL_API=3 etcdctl snapshot save snapshot.db \
+  --cacert /etc/kubernetes/pki/etcd/ca.crt \
+  --cert /etc/kubernetes/pki/etcd/server.crt \
+  --key /etc/kubernetes/pki/etcd/server.key
+
+
+https://k21academy.com/docker-kubernetes/etcd-backup-restore-in-k8s-step-by-step/
+
+https://medium.com/@mehmetodabashi/backup-and-restore-etcd-cluster-on-kubernetes-93c19b1c070
+
+
+
+To Install ETCDL:
+
+# Download the etcd release
+wget https://github.com/etcd-io/etcd/releases/download/v3.5.12/etcd-v3.5.12-linux-amd64.tar.gz
+
+# Extract the archive
+tar -xvf etcd-v3.5.12-linux-amd64.tar.gz
+
+# Move the etcdctl binary to /usr/local/bin
+sudo mv etcd-v3.5.12-linux-amd64/etcdctl /usr/local/bin/
+
+
+
+-------------------------------------------------------------------------------------Restore Cluster state-------------------------------------------------------------------------------------
+
+1.Backup snapshot to other path
+
+mkdir /var/lib/etcd-restore
+
+cp -r /var/lib/etcd/ /var/lib/etcd-restore/
+
+
+2. Empty the data directory 
+
+rm -rf /var/lib/etcd 
+
+3. To get Information from  etcd.yaml 
+
+cat /etc/kubernetes/manifests/etcd.yaml
+
+
+4. copy the below command and replace the etcd.yaml file values with help of CHAT Gpt
+
+restore :::::
+
+
+========makesure DB path in below command (etcdctl snapshot restore /var/lib/etcd-restore/db \)
+
+
+
+
+ETCDCTL_API=3 etcdctl snapshot restore /var/lib/etcd-restore/db \
+>   --endpoints=https://127.0.0.1:2379 \
+>   --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+>   --cert=/etc/kubernetes/pki/etcd/server.crt \
+>   --key=/etc/kubernetes/pki/etcd/server.key \
+>   --name=onekube-ip-10-3-96-6 \
+>   --data-dir=/var/lib/etcd \
+>   --initial-cluster=onekube-ip-10-3-96-6=https://10.3.96.6:2380 \
+>   --initial-cluster-token=etcd-cluster-1 \
+>   --initial-advertise-peer-urls=https://10.3.96.6:2380 \
+>   --skip-hash-check=true
+Deprecated: Use `etcdutl snapshot restore` instead.
+
+2024-10-12T07:10:08+05:30	info	snapshot/v3_snapshot.go:265	restoring snapshot	{"path": "/var/lib/etcd-restore/db", "wal-dir": "/var/lib/etcd/member/wal", "data-dir": "/var/lib/etcd", "snap-dir": "/var/lib/etcd/member/snap", "initial-memory-map-size": 0}
+2024-10-12T07:10:08+05:30	info	membership/store.go:141	Trimming membership information from the backend...
+2024-10-12T07:10:08+05:30	info	membership/cluster.go:421	added member	{"cluster-id": "5bdd61e699697c7f", "local-member-id": "0", "added-peer-id": "8f1f7c7acb36e158", "added-peer-peer-urls": ["https://10.3.96.6:2380"]}
+2024-10-12T07:10:08+05:30	info	snapshot/v3_snapshot.go:293	restored snapshot	{"path": "/var/lib/etcd-restore/db", "wal-dir": "/var/lib/etcd/member/wal", "data-dir": "/var/lib/etcd", "snap-dir": "/var/lib/etcd/member/snap", "initial-memory-map-size": 0}
