@@ -1,0 +1,47 @@
+sudo apt-get update && sudo apt-get full-upgrade -y
+
+The above command will update apt and then run the full upgrade. Once this completes, reboot the system and log back in.
+
+How to upgrade to kernel 6.0
+The first method we’ll use is manually downloading the necessary files and installing them with dpkg. Here are the files you’ll want to download and the commands to do so:
+
+wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v6.0/amd64/linux-image-unsigned-6.0.0-060000-generic_6.0.0-060000.202210022231_amd64.deb
+
+wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v6.0/amd64/linux-modules-6.0.0-060000-generic_6.0.0-060000.202210022231_amd64.deb
+
+wget https://kernel.ubuntu.com/~kernel-ppa/mainline/v6.0/amd64/linux-headers-6.0.0-060000_6.0.0-060000.202210022231_all.deb
+
+Now, to install those files, issue the command:
+
+sudo dpkg -i linux-image-unsigned-6.0.0-060000-generic_6.0.0-060000.202210022231_amd64.deb
+sudo dpkg -i linux-modules-6.0.0-060000-generic_6.0.0-060000.202210022231_amd64.deb
+sudo dpkg -i linux-headers-6.0.0-060000_6.0.0-060000.202210022231_all.deb
+
+sudo update-grub
+
+
+If you get an error that the system is unable to build the modules. If that’s the case, resolve it with:
+
+sudo apt-get install gcc make perl -y
+
+Once the installation completes, reboot the machine and verify the kernel with:
+
+uname -r
+
+You should see that the system is now running kernel 6.0.
+
+The second method uses a third-party PPA, which means that the kernel will be updated with the built-in package manager instead of having to upgrade manually as you did above.
+
+To add the new repository, issue the command:
+
+sudo add-apt-repository ppa:cappelikan/ppa
+
+Next, update apt with:
+
+sudo apt update
+
+Finally, install the kernel with the command:
+
+sudo apt install mainline 6.0.0 -y
+
+sudo update-grub
