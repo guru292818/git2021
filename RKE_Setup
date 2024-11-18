@@ -1,0 +1,58 @@
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg lsb-release
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo \
+"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+$(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo docker --version
+------
+wget https://github.com/rancher/rke/releases/download/v1.7.0-rc.5/rke_linux-amd64
+chmod +x rke_linux-amd64
+sudo mv rke_linux-amd64 /usr/local/bin/rke
+------
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+chmod +x kubectl
+mv kubectl /usr/local/bin/
+------
+wget https://get.helm.sh/helm-v3.16.3-linux-amd64.tar.gz
+tar xf helm-v3.16.3-linux-amd64.tar.gz
+mv linux-amd64/helm /usr/local/bin/
+----
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+
+rke config --empty --name cluster.yml
+
+before,
+----------
+ssh-keygen 
+cat .ssh/id_rsa.pub >> .ssh/authorized_keys
+
+rke config --print
+
+cluster.yml
+
+ add kuberntes version: v1.29.10-rancher1-1
+
+After configure,
+-----------------
+
+rke up --ignore-docker-version
+
+once completed, 
+----------------
+
+mkdir .kube
+
+mv kube_config_cluster.yml .kube/config
+
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.9.1/cert-manager.crds.yaml
+
+kubectl create namespace cert-manager
+helm install cert-manager jetstack/cert-manager \
+  --namespace cert-manager \
+  --version v1.9.1
+./rke up --config /tmp/config.yml
